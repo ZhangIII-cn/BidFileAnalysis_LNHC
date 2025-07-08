@@ -11,24 +11,25 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def extract_zip(file_path, output_dir, password=None):
+def extract_zip(file_path, output_dir):
     """解压 ZIP 文件"""
+    # print(output_dir)
     try:
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
-            if password:
-                zip_ref.extractall(output_dir, pwd=password.encode())
-            else:
-                zip_ref.extractall(output_dir)
+            for file in zip_ref.namelist():
+                print(file_path.split('.')[-2],":",file)
+                zip_ref.extract(file,output_dir)
+            #zip_ref.extractall(output_dir)
         return True
     except Exception as e:
         logger.error(f"ZIP解压错误: {str(e)}")
         return False
 
 
-def extract_7z(file_path, output_dir, password=None):
+def extract_7z(file_path, output_dir):
     """解压 7z 文件"""
     try:
-        with py7zr.SevenZipFile(file_path, mode='r', password=password) as z:
+        with py7zr.SevenZipFile(file_path, mode='r') as z:
             z.extractall(output_dir)
         return True
     except Exception as e:
@@ -36,14 +37,11 @@ def extract_7z(file_path, output_dir, password=None):
         return False
 
 
-def extract_rar(file_path, output_dir, password=None):
+def extract_rar(file_path, output_dir):
     """解压 RAR 文件"""
     try:
         with rarfile.RarFile(file_path, 'r') as rar_ref:
-            if password:
-                rar_ref.extractall(output_dir, pwd=password)
-            else:
-                rar_ref.extractall(output_dir)
+            rar_ref.extractall(output_dir)
         return True
     except Exception as e:
         logger.error(f"RAR解压错误: {str(e)}")
@@ -60,7 +58,7 @@ def extract_with_patool(file_path, output_dir):
         return False
 
 
-def extract_all_archives(directory, output_dir=None, password=None):
+def extract_all_archives(directory, output_dir=None):
     """
     解压指定目录下的所有压缩文件
     :param directory: 包含压缩文件的目录路径
@@ -87,8 +85,6 @@ def extract_all_archives(directory, output_dir=None, password=None):
         # 获取文件扩展名
         ext = os.path.splitext(file)[1].lower()
 
-        logger.info(f"正在处理: {file}")
-
         try:
             # 创建输出目录
             if output_dir is None:
@@ -100,7 +96,7 @@ def extract_all_archives(directory, output_dir=None, password=None):
 
             # 选择解压方法
             if ext in supported_extensions:
-                result = supported_extensions[ext](file_path, output_subdir, password)
+                result = supported_extensions[ext](file_path, output_subdir)
             else:
                 # 检查是否是支持的压缩文件
                 if patoolib.is_archive(file_path):
@@ -110,7 +106,8 @@ def extract_all_archives(directory, output_dir=None, password=None):
                     continue
 
             if result:
-                logger.info(f"成功解压到: {output_subdir}")
+                # logger.info(f"成功解压到: {output_subdir}")
+                pass
             else:
                 success = False
                 logger.error(f"解压失败: {file}")
@@ -120,11 +117,5 @@ def extract_all_archives(directory, output_dir=None, password=None):
             logger.error(f"处理 {file} 时发生错误: {str(e)}")
 
     return success
-
-
-if __name__ == "__main__":
-    target_dir = 'C:/Users/Administrator/Desktop/临时文件'
-    output_directory = 'C:/Users/Administrator/Desktop/临时文件/New'
-    extract_all_archives(target_dir, output_directory)
 
 
