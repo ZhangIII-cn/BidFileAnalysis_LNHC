@@ -17,7 +17,7 @@ def extract_zip(file_path, output_dir):
     try:
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             for file in zip_ref.namelist():
-                print(file_path.split('.')[-2],":",file)
+                # print(file_path.split('.')[-2],":",file)
                 zip_ref.extract(file,output_dir)
             #zip_ref.extractall(output_dir)
         return True
