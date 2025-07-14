@@ -5,10 +5,22 @@ import codecs
 import os
 
 def figure_doc():
+    print(1)
     pass
 
-def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):  #递归解析所有文件
-    print(target_dir)
+def figure_xls():
+    print(2)
+    pass
+
+def figure_pdf():
+    print(3)
+    pass
+
+def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
+    # 递归解析所有文件
+    # 返回值递归回根目录位置，标记当前Folder的状态，决定输出文件的位置
+    # 返回值 1：符合筛选条件  2：不符合筛选条件  3：内部存在未知文件，需要人工核查
+    #print(target_dir)
     if ifRoot:  #根目录默认解压所有压缩包并遍历
         unzip.extract_all_archives(target_dir,output_dir)
         for Folder in os.listdir(output_dir):
@@ -19,21 +31,30 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None): 
                 if len(File_str) == 1 : # File为文件夹 无后缀
                     dfs_extract( output_dir+'/'+Folder+'/'+File, output_dir+'/'+Folder+'/'+File,False,True)
                 elif (File_EXT == 'zip'):
-                    dfs_extract(output_dir+'/'+Folder+'/'+File,output_dir+'/'+Folder+'/'+File_Name,False,False)
+                    dfs_extract( output_dir+'/'+Folder+'/'+File,output_dir+'/'+Folder+'/'+File_Name,False,False)
     else:    #非根目录
         if not ifFolder:
             unzip.extract_zip(target_dir,output_dir)
-        dir = target_dir if ifFolder else output_dir
-        for File in os.listdir(dir):
-            File_str = File.split('.')
-            File_EXT = File_str[-1]
-            File_Name = File_str[0]  # 不包括后缀名的name
-            if len(File_str) == 1 : # File为文件夹 无后缀
-                dfs_extract(dir + '/'  + File, dir + '/' + File, False, True)
-            elif (File_EXT == 'zip'):
-                dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
-            elif (File_EXT == 'doc'):
-                figure_doc()
+            dfs_extract(output_dir,output_dir,False,True) #解压完一定是文件夹
+        else :
+            dir = target_dir if ifFolder else output_dir
+            for File in os.listdir(dir):
+                File_str = File.split('.')
+                File_EXT = File_str[-1]
+                File_Name = File_str[0]  # 不包括后缀名的name
+                if len(File_str) == 1 : # File为文件夹 无后缀
+                    dfs_extract(dir + '/'  + File, dir + '/' + File, False, True)
+                elif (File_EXT == 'zip'):
+                    dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
+                elif (File_EXT == 'doc' or File_EXT == 'docx'):
+                    figure_doc()
+                elif (File_EXT == 'xls' or File_EXT == 'xlsx'):
+                    figure_xls()
+                elif (File_EXT == 'pdf'):
+                    figure_pdf()
+                else :
+                    print("失败："+dir+File)
+
     #file_ext = file.split('.')
     return
 
