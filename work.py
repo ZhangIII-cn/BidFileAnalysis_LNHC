@@ -25,10 +25,10 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
         unzip.extract_all_archives(target_dir,output_dir)
         for Folder in os.listdir(output_dir):
             for File in os.listdir(output_dir+'/'+Folder):
-                File_str = File.split('.')
-                File_EXT = File_str[-1]
-                File_Name = File_str[0]  #不包括后缀名的name
-                if len(File_str) == 1 : # File为文件夹 无后缀
+                File_strs = File.split('.')
+                File_EXT = File_strs[-1]
+                File_Name = File_strs[0]  #不包括后缀名的name
+                if len(File_strs) == 1 : # File为文件夹 无后缀
                     dfs_extract( output_dir+'/'+Folder+'/'+File, output_dir+'/'+Folder+'/'+File,False,True)
                 elif (File_EXT == 'zip'):
                     dfs_extract( output_dir+'/'+Folder+'/'+File,output_dir+'/'+Folder+'/'+File_Name,False,False)
@@ -39,10 +39,10 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
         else :
             dir = target_dir if ifFolder else output_dir
             for File in os.listdir(dir):
-                File_str = File.split('.')
-                File_EXT = File_str[-1]
-                File_Name = File_str[0]  # 不包括后缀名的name
-                if len(File_str) == 1 : # File为文件夹 无后缀
+                File_strs = File.split('.')
+                File_EXT = File_strs[-1]
+                File_Name = File_strs[0]  # 不包括后缀名的name
+                if len(File_strs) == 1 : # File为文件夹 无后缀
                     dfs_extract(dir + '/'  + File, dir + '/' + File, False, True)
                 elif (File_EXT == 'zip'):
                     dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
@@ -53,7 +53,8 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
                 elif (File_EXT == 'pdf'):
                     figure_pdf()
                 else :
-                    print("失败："+dir+File)
+                    print("存在未知格式文件："+dir+File)
+                    return 3
 
     #file_ext = file.split('.')
     return
