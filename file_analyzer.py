@@ -5,6 +5,8 @@ from win32com import client
 import os
 import zipfile
 from oletools.olevba import VBA_Parser
+import olefile
+import openpyxl
 
 Keyword_list=["无人机","巡检","联系人"]
 
@@ -64,7 +66,22 @@ def Check_Inline_File(path):
 def Figure_bin(path):
     # 解析bin文件的原始类型 并尝试读取内容
     # 可能包含 doc xls docx xlsx pdf package等多种格式
-    print("This is bin!"+path)
+    #print("This is bin!"+path)
+    with olefile.OleFileIO(path) as ole:
+        print(ole.listdir())
+        if ole.exists('Workbook'):    #存在工作表说明是xls文件,但是这是充分条件
+            print("存在excel流")
+            data = ole.openstream('Workbook').read()
+            output_path=os.getcwd()+"/tmp_output/tmp.xls"
+            with open(output_path, "wb") as f:
+                f.write(data)
+            Figure_xls(output_path)    #使用分析函数分析此xls
+
+        elif ole.exists('package'):  #package存在多种可能
+            print("存在package流")
+
+
+
 
 
 def Figure_doc(File_Path):
@@ -96,16 +113,13 @@ def Figure_doc(File_Path):
 
 
 def Figure_xls(File_Path):
+    print(File_Path)
     pass
 
 
 
 def Figure_pdf(File_Path):
     pass
-
-
-
-
 
 
 
