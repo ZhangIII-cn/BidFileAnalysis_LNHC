@@ -19,6 +19,28 @@ def Doc_to_Docx(path):
     doc.Close()
     word.Quit()
 
+def Dectct_Package(path):
+    with open(path, 'rb') as f:
+        header = f.read(8)  # 读取前8字节
+
+    # 常见文件头签名
+    signatures = {
+        b'%PDF-': "PDF",
+        b'\x50\x4B\x03\x04': "ZIP (Office文件如 .docx/.xlsx)",
+        b'\xD0\xCF\x11\xE0': "OLE (旧版Office如 .doc/.xls)",
+        b'\x89PNG\r\n\x1A\n': "PNG图片",
+        b'\xFF\xD8\xFF': "JPEG图片",
+        b'\x47\x49\x46\x38': "GIF图片",
+        b'\x25\x21\x50\x53': "PostScript (.ps)",
+        b'\x7FELF': "ELF可执行文件",
+    }
+
+    for sig, file_type in signatures.items():
+        if header.startswith(sig):
+            print(file_type)
+
+
+
 def Check_Inline_File(path):
     #个别文件中存在内嵌文件对象
     #基于docx本质是zip的原理，解析其embeddings目录下是否存在文件并打开解析
@@ -41,7 +63,7 @@ def Check_Inline_File(path):
     try:
         with zipfile.ZipFile(path, 'r') as zip_ref:
             for file in zip_ref.namelist():
-                if file.startswith("word/embeddings/") and file != "word/embeddings/": #忽略掉文件夹目录
+                if file.startswith("word/embeddings/") and file != "word/embeddings/":  #忽略掉文件夹目录
                     output_dir = os.path.abspath(os.path.dirname(path))  #解压文件输出目的目录的绝对路径
                     output_file = zip_ref.extract(file,output_dir)    #输出当前inline文件解压后保存的文件路径
                     #print(output_file)
@@ -79,6 +101,13 @@ def Figure_bin(path):
 
         elif ole.exists('package'):  #package存在多种可能
             print("存在package流")
+            data=ole.openstream('package').read()
+            #print(data)
+            output_path = os.getcwd() + "/tmp_output/tmp2.doc"
+            with open(output_path,'wb') as f:
+                f.write(data)    #目前可以直接输出doc文件，但不确定是否存在其他状况
+            Dectct_Package(output_path)  #检查文件类型
+
 
 
 
@@ -113,7 +142,7 @@ def Figure_doc(File_Path):
 
 
 def Figure_xls(File_Path):
-    print(File_Path)
+    #print(File_Path)
     pass
 
 
