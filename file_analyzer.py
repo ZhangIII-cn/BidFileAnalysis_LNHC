@@ -12,14 +12,19 @@ Keyword_list=["无人机","巡检","联系人"]
 
 def Doc_to_Docx(path):
     #利用win32com将doc转化为docx
+    print(path)
+    #path='F:\Shell\File_Fliter\Test_doc\招标公告（2025年第4次服务）.doc'
     pythoncom.CoInitialize()
     word=win32com.client.Dispatch("Word.Application")
-    doc = word.Documents.Open(os.getcwd()+'/'+path)  #需要绝对路径
-    doc.SaveAs(os.getcwd()+'/'+path+"x",12)  #将doc后缀改成docx
+    #doc = word.Documents.Open(os.getcwd()+'/'+path)  #需要绝对路径
+    #doc.SaveAs(os.getcwd()+'/'+path+"x",12)  #将doc后缀改成docx
+    #-----------使用正确的绝对路径：
+    doc = word.Documents.Open(path)  # 需要绝对路径
+    doc.SaveAs(path+"x",12)  #将doc后缀改成docx
     doc.Close()
     word.Quit()
 
-def Dectct_Package(path):
+def Detect_Package(path):
     with open(path, 'rb') as f:
         header = f.read(8)  # 读取前8字节
 
@@ -33,6 +38,9 @@ def Dectct_Package(path):
         b'\x47\x49\x46\x38': "GIF图片",
         b'\x25\x21\x50\x53': "PostScript (.ps)",
         b'\x7FELF': "ELF可执行文件",
+        b'PK\x03\x04':"DOCX文件",
+        b'\t\x08\x10':"XLS工作表",
+        b'\xd0\xcf\x11\xe0':"DOC文件"
     }
 
     for sig, file_type in signatures.items():
@@ -106,11 +114,9 @@ def Figure_bin(path):
             output_path = os.getcwd() + "/tmp_output/tmp2.doc"
             with open(output_path,'wb') as f:
                 f.write(data)    #目前可以直接输出doc文件，但不确定是否存在其他状况
-            Dectct_Package(output_path)  #检查文件类型
-
-
-
-
+            Detect_Package(output_path)  #检查文件类型
+        else:
+            return 3
 
 
 def Figure_doc(File_Path):
@@ -122,22 +128,22 @@ def Figure_doc(File_Path):
     doc=docx.Document(File_Path)  #读取word文件
     paragraphs = doc.paragraphs   #处理文字内容
     for para in paragraphs:
+        print(para)
         if any(kw in para.text for kw in Keyword_list):
-            pass
-            #print(para.text)
-            # return 1
+            return 1
 
     tables=doc.tables  #处理表格内容
     for table in tables:
         for row in table.rows:
             for cell in row.cells:
                 if any(kw in cell.text for kw in Keyword_list):
-                    pass
-                    #print(cell.text)
-                    # return 1
+                    return 1
 
-
-    return Check_Inline_File(File_Path)
+    RE_Check_Inline_File = Check_Inline_File(File_Path)
+    if RE_Check_Inline_File == 1 or RE_Check_Inline_File == 3:
+        return RE_Check_Inline_File
+    else:
+        return 2
 
 
 
@@ -154,8 +160,8 @@ def Figure_pdf(File_Path):
 
 
 # 返回值 1：符合筛选条件  2：不符合筛选条件  3：内部存在未知文件，需要人工核查
-if __name__ == "__main__":
-    Figure_doc('Test_doc/object.docx')
+# if __name__ == "__main__":
+#     Figure_doc('Test_doc/aaa.doc')
 
 
 

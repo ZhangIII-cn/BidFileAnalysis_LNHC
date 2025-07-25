@@ -3,10 +3,18 @@ import json
 import chardet
 import codecs
 import os
+import file_analyzer
 
-def figure_doc():
-    print(1)
-    pass
+
+def copy_worksppace(file_path):
+    #因为目录过长，win接口无法读取文件，需要先临时移动到workspace目录进行文件分析
+    workspace_path= ""
+    return workspace_path
+
+
+def figure_doc(path):
+    work_path = copy_worksppace(path)
+    file_analyzer.Figure_doc(work_path)
 
 def figure_xls():
     print(2)
@@ -47,7 +55,8 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
                 elif (File_EXT == 'zip'):
                     dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
                 elif (File_EXT == 'doc' or File_EXT == 'docx'):
-                    figure_doc()
+                    #print(dir+'/'+File)
+                    figure_doc(dir+'/'+File)
                 elif (File_EXT == 'xls' or File_EXT == 'xlsx'):
                     figure_xls()
                 elif (File_EXT == 'pdf'):
