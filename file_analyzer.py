@@ -12,7 +12,7 @@ Keyword_list=["无人机","巡检","联系人"]
 
 def Doc_to_Docx(path):
     #利用win32com将doc转化为docx
-    print(path)
+    #print(path)
     #path='F:\Shell\File_Fliter\Test_doc\招标公告（2025年第4次服务）.doc'
     pythoncom.CoInitialize()
     word=win32com.client.Dispatch("Word.Application")
@@ -27,7 +27,6 @@ def Doc_to_Docx(path):
 def Detect_Package(path):
     with open(path, 'rb') as f:
         header = f.read(8)  # 读取前8字节
-
     # 常见文件头签名
     signatures = {
         b'%PDF-': "PDF",
@@ -42,10 +41,10 @@ def Detect_Package(path):
         b'\t\x08\x10':"XLS工作表",
         b'\xd0\xcf\x11\xe0':"DOC文件"
     }
-
     for sig, file_type in signatures.items():
         if header.startswith(sig):
-            print(file_type)
+            pass
+            #print(file_type)
 
 
 
@@ -128,7 +127,7 @@ def Figure_doc(File_Path):
     doc=docx.Document(File_Path)  #读取word文件
     paragraphs = doc.paragraphs   #处理文字内容
     for para in paragraphs:
-        print(para)
+        #print(para)
         if any(kw in para.text for kw in Keyword_list):
             return 1
 

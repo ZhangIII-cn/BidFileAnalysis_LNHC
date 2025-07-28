@@ -4,17 +4,26 @@ import chardet
 import codecs
 import os
 import file_analyzer
-
+import shutil
 
 def copy_worksppace(file_path):
     #因为目录过长，win接口无法读取文件，需要先临时移动到workspace目录进行文件分析
-    workspace_path= ""
-    return workspace_path
+    workspace_path= os.getcwd()+'/Workspace'
+    shutil.copy(file_path, workspace_path)
+    new_file_path=workspace_path+"/"+file_path.split('/')[-1]
+    return new_file_path
 
 
 def figure_doc(path):
-    work_path = copy_worksppace(path)
-    file_analyzer.Figure_doc(work_path)
+    work_path = copy_worksppace(path)  #先将doc文件复制到工作区，再进行分析
+    RE_Code = file_analyzer.Figure_doc(work_path)
+
+    #分析完成后将工作区清空，避免出现同名文件冲突崩溃
+
+    #文件读取出现问题：
+    #pywintypes.com_error: (-2147352567, '发生意外。', (0, 'Microsoft Word',
+    #                                                  'Office 检测到此文件存在一个问题。为帮助保护您的计算机，不能打开此文件。\r (F:\\Shell\\File_Fliter\\Workspace\\公告.doc)',
+    #                                                 'wdmain11.chm', 25775, -2146821993), None)
 
 def figure_xls():
     print(2)
@@ -55,7 +64,7 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
                 elif (File_EXT == 'zip'):
                     dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
                 elif (File_EXT == 'doc' or File_EXT == 'docx'):
-                    #print(dir+'/'+File)
+                    print(dir+'/'+File)
                     figure_doc(dir+'/'+File)
                 elif (File_EXT == 'xls' or File_EXT == 'xlsx'):
                     figure_xls()
