@@ -26,11 +26,11 @@ def figure_doc(path):
     #                                                 'wdmain11.chm', 25775, -2146821993), None)
 
 def figure_xls():
-    print(2)
+    #print(2)
     pass
 
 def figure_pdf():
-    print(3)
+    #print(3)
     pass
 
 def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
@@ -38,6 +38,11 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
     # 返回值递归回根目录位置，标记当前Folder的状态，决定输出文件的位置
     # 返回值 1：符合筛选条件  2：不符合筛选条件  3：内部存在未知文件，需要人工核查
     #print(target_dir)
+    # print("------------------"+target_dir)
+
+    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    #现在没成功解压的有：招标5 7 8 9 10
+    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     if ifRoot:  #根目录默认解压所有压缩包并遍历
         unzip.extract_all_archives(target_dir,output_dir)
         for Folder in os.listdir(output_dir):
@@ -64,7 +69,7 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
                 elif (File_EXT == 'zip'):
                     dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
                 elif (File_EXT == 'doc' or File_EXT == 'docx'):
-                    print(dir+'/'+File)
+                    print(dir+'/'+File+":")
                     figure_doc(dir+'/'+File)
                 elif (File_EXT == 'xls' or File_EXT == 'xlsx'):
                     figure_xls()

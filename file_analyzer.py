@@ -19,10 +19,18 @@ def Doc_to_Docx(path):
     #doc = word.Documents.Open(os.getcwd()+'/'+path)  #需要绝对路径
     #doc.SaveAs(os.getcwd()+'/'+path+"x",12)  #将doc后缀改成docx
     #-----------使用正确的绝对路径：
-    doc = word.Documents.Open(path)  # 需要绝对路径
-    doc.SaveAs(path+"x",12)  #将doc后缀改成docx
-    doc.Close()
-    word.Quit()
+    # doc = word.Documents.Open(path)  # 需要绝对路径
+    # doc.SaveAs(path+"x",12)  #将doc后缀改成docx
+    # doc.Close()
+    # word.Quit()
+    try:
+        doc = word.Documents.Open(path)  # 需要绝对路径
+        doc.SaveAs(path+"x",12)  #将doc后缀改成docx
+        doc.Close()
+        word.Quit()
+    except:
+        print("Error：doc文件受损")
+        return 3
 
 def Detect_Package(path):
     with open(path, 'rb') as f:
@@ -97,7 +105,7 @@ def Figure_bin(path):
     # 可能包含 doc xls docx xlsx pdf package等多种格式
     #print("This is bin!"+path)
     with olefile.OleFileIO(path) as ole:
-        print(ole.listdir())
+        #print(ole.listdir())
         if ole.exists('Workbook'):    #存在工作表说明是xls文件,但是这是充分条件
             print("存在excel流")
             data = ole.openstream('Workbook').read()
@@ -121,8 +129,10 @@ def Figure_bin(path):
 def Figure_doc(File_Path):
     EXT=File_Path.split('.')[-1]
     if EXT == 'doc':  #先将doc转化成docx
-        Doc_to_Docx(File_Path)
-        File_Path += "x"
+        if Doc_to_Docx(File_Path) == 3:
+            return 3
+        else :
+            File_Path += "x"
 
     doc=docx.Document(File_Path)  #读取word文件
     paragraphs = doc.paragraphs   #处理文字内容
