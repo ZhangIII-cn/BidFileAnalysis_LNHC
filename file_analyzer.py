@@ -127,6 +127,8 @@ def Figure_bin(path):
 
 
 def Figure_doc(File_Path):
+    print("-------------------------------------" + File_Path)
+
     EXT=File_Path.split('.')[-1]
     if EXT == 'doc':  #先将doc转化成docx
         if Doc_to_Docx(File_Path) == 3:
