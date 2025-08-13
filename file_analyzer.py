@@ -59,7 +59,6 @@ def Detect_Package(path):
 def Check_Inline_File(path):
     #个别文件中存在内嵌文件对象
     #基于docx本质是zip的原理，解析其embeddings目录下是否存在文件并打开解析
-    #print(path)
 
     #----------------------------------利用oletools快速检查ole对象是否存在-----------------
     # 未解压情况下，oletools的方法无法探测到macros与olecontainer，原因待查
@@ -70,35 +69,48 @@ def Check_Inline_File(path):
     #         with open(filename, 'wb') as f:
     #             f.write(stream_data)
 
-
     #---------------------------------利用zip解压分析内嵌ole对象-----------------------------
     #在已知案例中，目标文件会以.bin形式保存于embadding目录
     #该文件前缀 D0 CF 11 E0 A1 B1 1A E1，为 application/vnd.visio(vsd) 格式
     #不排除后续可能存在直接嵌入docx和xlsx的情况
+    If_Embeddings_Exist = False
     try:
         with zipfile.ZipFile(path, 'r') as zip_ref:
             for file in zip_ref.namelist():
                 if file.startswith("word/embeddings/") and file != "word/embeddings/":  #忽略掉文件夹目录
+                    If_Embeddings_Exist = True
                     output_dir = os.path.abspath(os.path.dirname(path))  #解压文件输出目的目录的绝对路径
                     output_file = zip_ref.extract(file,output_dir)    #输出当前inline文件解压后保存的文件路径
                     #print(output_file)
                     File_strs = output_file.split('.')
                     File_EXT = File_strs[-1]
                     if File_EXT == 'bin' :
-                        Figure_bin(output_file)
+                        RE = Figure_bin(output_file)
+                        if  RE == 1:
+                            return 1
                     elif File_EXT == 'docx' or File_EXT == 'doc':
-                        Figure_doc(output_file)
+                        RE = Figure_doc(output_file)
+                        if  RE == 1:
+                            return 1
                     elif File_EXT == 'xlsx':
-                        Figure_xls(output_file)
+                        RE = Figure_xls(output_file)
+                        if  RE == 1:
+                            return 1
                     elif File_EXT == 'pdf':
-                        Figure_pdf(output_file)
+                        RE = Figure_pdf(output_file)
+                        if RE == 1:
+                            return 1
                     else :
                         print("存在未知格式文件："+output_file)
                         return 3
-
     except Exception as e:
         print(f"ZIP解压错误: {str(e)}")
         return 3
+
+    return 2
+    # if If_Embeddings_Exist == False:
+    #     return 2
+
 
 def Figure_bin(path):
     # 解析bin文件的原始类型 并尝试读取内容
@@ -112,7 +124,7 @@ def Figure_bin(path):
             output_path=os.getcwd()+"/tmp_output/tmp.xls"
             with open(output_path, "wb") as f:
                 f.write(data)
-            Figure_xls(output_path)    #使用分析函数分析此xls
+            return Figure_xls(output_path)    #使用分析函数分析此xls
 
         elif ole.exists('package'):  #package存在多种可能
             print("存在package流")
@@ -121,13 +133,15 @@ def Figure_bin(path):
             output_path = os.getcwd() + "/tmp_output/tmp2.doc"
             with open(output_path,'wb') as f:
                 f.write(data)    #目前可以直接输出doc文件，但不确定是否存在其他状况
-            Detect_Package(output_path)  #检查文件类型
+            #Detect_Package(output_path)  #检查文件类型
+            return Figure_doc(output_path)
+
         else:
             return 3
 
 
 def Figure_doc(File_Path):
-    print("-------------------------------------" + File_Path)
+    #print("-------------------------------------" + File_Path)
 
     EXT=File_Path.split('.')[-1]
     if EXT == 'doc':  #先将doc转化成docx
@@ -151,11 +165,7 @@ def Figure_doc(File_Path):
                     return 1
 
     RE_Check_Inline_File = Check_Inline_File(File_Path)
-    if RE_Check_Inline_File == 1 or RE_Check_Inline_File == 3:
-        return RE_Check_Inline_File
-    else:
-        return 2
-
+    return RE_Check_Inline_File
 
 
 def Figure_xls(File_Path):

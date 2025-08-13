@@ -17,6 +17,10 @@ def copy_worksppace(file_path):
 def figure_doc(path):
     work_path = copy_worksppace(path)  #先将doc文件复制到工作区，再进行分析
     RE_Code = file_analyzer.Figure_doc(work_path)
+
+    return RE_Code
+
+
     #分析完成后将工作区清空，避免出现同名文件冲突崩溃
 
 
@@ -63,12 +67,15 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
                 elif (File_EXT == 'zip'):
                     dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
                 elif (File_EXT == 'doc' or File_EXT == 'docx'):
-                    #print(dir+'/'+File+":")
-                    figure_doc(dir+'/'+File)
+                    RE = figure_doc(dir + '/' + File)
+                    print(dir+'/'+File+":"+str(RE))
+
                 elif (File_EXT == 'xls' or File_EXT == 'xlsx'):
                     figure_xls()
+
                 elif (File_EXT == 'pdf'):
                     figure_pdf()
+
                 else :
                     print("存在未知格式文件："+dir+File)
                     return 3
