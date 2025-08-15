@@ -1,3 +1,5 @@
+from xml.etree.ElementTree import C14NWriterTarget
+
 import unzip
 import json
 import chardet
@@ -6,6 +8,7 @@ import os
 import file_analyzer
 import shutil
 
+global cnt_1 , cnt_2 ,cnt_3
 
 def copy_worksppace(file_path):
     #因为目录过长，win接口无法读取文件，需要先临时移动到workspace目录进行文件分析
@@ -18,11 +21,20 @@ def figure_doc(path):
     work_path = copy_worksppace(path)  #先将doc文件复制到工作区，再进行分析
     RE_Code = file_analyzer.Figure_doc(work_path)
 
-    return RE_Code
-
-
     #分析完成后将工作区清空，避免出现同名文件冲突崩溃
+    if os.path.exists(work_path):
+        os.remove(work_path)
+        print(work_path + " has been removed.")
 
+    global cnt_1, cnt_2, cnt_3
+    if RE_Code == 1:
+        cnt_1 += 1
+    elif RE_Code == 2:
+        cnt_2 += 1
+    elif RE_Code == 3:
+        cnt_3 += 1
+
+    return RE_Code
 
 def figure_xls():
     #print(2)
@@ -68,7 +80,8 @@ def dfs_extract(target_dir,output_dir,ifRoot=False,ifFolder=False,father=None):
                     dfs_extract(dir + '/' + File, dir + '/'  + File_Name, False,False)
                 elif (File_EXT == 'doc' or File_EXT == 'docx'):
                     RE = figure_doc(dir + '/' + File)
-                    print(dir+'/'+File+":"+str(RE))
+
+                    #print(dir+'/'+File+":"+str(RE))
 
                 elif (File_EXT == 'xls' or File_EXT == 'xlsx'):
                     figure_xls()
@@ -88,6 +101,10 @@ if __name__ == "__main__":
     #--------------------------------利用同一目录json读取源和目的目录-------------------------------
     #target_dir = 'C:/Users/Administrator/Desktop/临时文件'
     #output_directory = 'C:/Users/Administrator/Desktop/临时文件/New'
+
+    global cnt_1 , cnt_2 , cnt_3
+    cnt_1 = cnt_2 = cnt_3 =0
+
     with open('dir.json', 'r', newline='',encoding='utf-8') as rf:
         data=json.load(rf)
         target_dir = data['target_dir']
@@ -95,3 +112,4 @@ if __name__ == "__main__":
 
     dfs_extract(target_dir, output_dir,ifRoot=True)  #解压全部文件
 
+    print("Word : 识别出"+str(cnt_1) + "个包含内容文件，" + str(cnt_2) + "个不包含文件，" + str(cnt_3) + "个不确定文件")
