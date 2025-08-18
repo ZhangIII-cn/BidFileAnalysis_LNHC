@@ -21,18 +21,24 @@ def figure_doc(path):
     work_path = copy_worksppace(path)  #先将doc文件复制到工作区，再进行分析
     RE_Code = file_analyzer.Figure_doc(work_path)
 
+
     #分析完成后将工作区清空，避免出现同名文件冲突崩溃
     if os.path.exists(work_path):
-        os.remove(work_path)
-        print(work_path + " has been removed.")
+        try:
+            os.remove(work_path)
+        except:
+            print( work_path + ":删除失败" )
+        #print(work_path + " has been removed.")
 
     global cnt_1, cnt_2, cnt_3
     if RE_Code == 1:
         cnt_1 += 1
+        print(path + " " + str(RE_Code))
     elif RE_Code == 2:
         cnt_2 += 1
     elif RE_Code == 3:
         cnt_3 += 1
+        print(path + " " + str(RE_Code))
 
     return RE_Code
 

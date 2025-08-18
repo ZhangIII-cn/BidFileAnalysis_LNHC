@@ -8,7 +8,7 @@ from oletools.olevba import VBA_Parser
 import olefile
 import openpyxl
 
-Keyword_list=["无人机","巡检","联系人"]
+Keyword_list=["无人机","巡检"]
 
 def Doc_to_Docx(path):
     #利用win32com将doc转化为docx
@@ -30,6 +30,7 @@ def Doc_to_Docx(path):
         word.Quit()
     except:
         print("Error：doc文件受损")
+        word.Quit()
         return 3
 
 def Detect_Package(path):
